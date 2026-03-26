@@ -5,7 +5,7 @@
 #   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 #   .\install.ps1
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 function Log($msg) { Write-Host "[*] $msg" -ForegroundColor Green }
 function Warn($msg) { Write-Host "[!] $msg" -ForegroundColor Yellow }
@@ -105,7 +105,8 @@ if (Get-Command uv -ErrorAction SilentlyContinue) {
 # ---------- Project dependencies ----------
 if (Test-Path "pyproject.toml") {
     Log "Installing project dependencies..."
-    uv sync 2>&1 | Select-Object -Last 1
+    $uvOut = uv sync 2>&1 | Out-String
+    Write-Host $uvOut.Trim().Split("`n")[-1]
     Log "Dependencies installed"
 } else {
     Warn "pyproject.toml not found. Run this script from the project directory."

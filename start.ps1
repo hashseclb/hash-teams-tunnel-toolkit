@@ -14,7 +14,7 @@ param(
     [string]$Interface = "Wi-Fi"
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 # ========== CONFIGURATION ==========
 $RESOURCE_GROUP = "rg-teams-pentest"
@@ -238,8 +238,7 @@ function Ensure-VM {
 
     Log "Waiting for SSH..."
     for ($i = 0; $i -lt 30; $i++) {
-        $sshTest = ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 `
-            -i $SSH_KEY_PATH "$ADMIN_USER@$VM_IP" "echo ok" 2>$null
+        $sshTest = cmd /c "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -i $SSH_KEY_PATH $ADMIN_USER@$VM_IP `"echo ok`" 2>nul"
         if ($sshTest -eq "ok") { break }
         Start-Sleep -Seconds 2
     }
@@ -247,8 +246,7 @@ function Ensure-VM {
 
 # ---------- Deploy and start the relay ----------
 function Ensure-Relay {
-    $relayCheck = ssh -o ConnectTimeout=10 -i $SSH_KEY_PATH "$ADMIN_USER@$VM_IP" `
-        "ps aux | grep s2_server.py | grep -v grep" 2>$null
+    $relayCheck = cmd /c "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -i $SSH_KEY_PATH $ADMIN_USER@$VM_IP `"ps aux | grep s2_server.py | grep -v grep`" 2>nul"
 
     if ($relayCheck) {
         Log "Relay is already running on VM"
@@ -256,12 +254,9 @@ function Ensure-Relay {
     }
 
     Log "Deploying relay server to VM..."
-    scp -o StrictHostKeyChecking=no -i $SSH_KEY_PATH `
-        "src/scenarios/s2_domain_fronting/server.py" `
-        "${ADMIN_USER}@${VM_IP}:~/s2_server.py" 2>$null
+    cmd /c "scp -o StrictHostKeyChecking=no -i $SSH_KEY_PATH `"src/scenarios/s2_domain_fronting/server.py`" $ADMIN_USER@${VM_IP}:~/s2_server.py 2>nul"
 
-    ssh -i $SSH_KEY_PATH "$ADMIN_USER@$VM_IP" `
-        "nohup python3 ~/s2_server.py --port $RELAY_PORT --password '$RELAY_PASSWORD' --auto-cert > ~/relay.log 2>&1 &"
+    cmd /c "ssh -o StrictHostKeyChecking=no -i $SSH_KEY_PATH $ADMIN_USER@$VM_IP `"nohup python3 ~/s2_server.py --port $RELAY_PORT --password '$RELAY_PASSWORD' --auto-cert > ~/relay.log 2>&1 &`" 2>nul"
 
     Start-Sleep -Seconds 2
     Log "Relay is running on ${VM_IP}:${RELAY_PORT}"
