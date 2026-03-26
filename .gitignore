@@ -1,0 +1,24 @@
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+uv.lock
+
+.venv
+
+# SSH keys
+pentest_key
+pentest_key.pub
+
+run_test.sh
+setup_azure.sh
+verify_sni.py
+.relay_password
+.vm_state
+
+*.txt
+blog/
+src/scenarios/hide/
+diagrams/*.mmd
