@@ -92,7 +92,7 @@ The toolkit needs Python 3.12+, the Azure CLI, and a few other tools. There is a
 # if you don't have git oh god
 # click download zip on github
 git clone https://github.com/hashseclb/hash-teams-tunnel-toolkit.git
-cd teams-tunnel-pentest
+cd hash-teams-tunnel-toolkit
 ./install.sh
 ```
 
@@ -102,7 +102,7 @@ cd teams-tunnel-pentest
 # if you don't have git oh god
 # click download zip on github
 git clone https://github.com/hashseclb/hash-teams-tunnel-toolkit.git
-cd teams-tunnel-pentest
+cd hash-teams-tunnel-toolkit
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\install.ps1
 ```
