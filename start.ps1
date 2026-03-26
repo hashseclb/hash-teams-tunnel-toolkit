@@ -77,7 +77,8 @@ function Cleanup {
     Write-Host ""
 }
 
-trap { Cleanup; break }
+# Only trap Ctrl+C, not every error
+$null = Register-EngineEvent -SourceIdentifier PowerShell.Exiting -Action { Cleanup }
 
 # ---------- Check prerequisites ----------
 function Check-Prereqs {
@@ -246,6 +247,23 @@ function Ensure-VM {
 
 # ---------- Deploy and start the relay ----------
 function Ensure-Relay {
+    # Test SSH connectivity first
+    $sshResult = cmd /c "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o BatchMode=yes -i $SSH_KEY_PATH $ADMIN_USER@$VM_IP `"echo connected`" 2>&1"
+
+    if ($sshResult -match "Permission denied") {
+        Warn "SSH key mismatch. The VM was created with a different SSH key."
+        Warn "This happens when the VM was created from a different machine."
+        Log "Pushing your SSH key to the VM..."
+        az vm user update `
+            --resource-group $RESOURCE_GROUP `
+            --name $VM_NAME `
+            --username $ADMIN_USER `
+            --ssh-key-value "$SSH_KEY_PATH.pub" `
+            -o none 2>$null
+        Log "SSH key updated. Retrying connection..."
+        Start-Sleep -Seconds 5
+    }
+
     $relayCheck = cmd /c "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -i $SSH_KEY_PATH $ADMIN_USER@$VM_IP `"ps aux | grep s2_server.py | grep -v grep`" 2>nul"
 
     if ($relayCheck) {
@@ -266,7 +284,8 @@ function Ensure-Relay {
 function Ensure-Deps {
     if (-not (Test-Path ".venv")) {
         Log "Installing Python dependencies..."
-        uv sync 2>&1 | Select-Object -Last 1
+        $uvOut = uv sync 2>&1 | Out-String
+        Write-Host $uvOut.Trim().Split("`n")[-1]
     }
 }
 

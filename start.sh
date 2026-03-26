@@ -259,8 +259,25 @@ ensure_vm() {
 
 # ---------- Deploy and start the relay ----------
 ensure_relay() {
+    # Test SSH connectivity first
+    SSH_TEST=$(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o BatchMode=yes \
+        -i "$SSH_KEY_PATH" "$ADMIN_USER@$VM_IP" "echo connected" 2>&1 || true)
+
+    if echo "$SSH_TEST" | grep -q "Permission denied"; then
+        warn "SSH key mismatch. The VM was created with a different SSH key."
+        log "Pushing your SSH key to the VM..."
+        az vm user update \
+            --resource-group "$RESOURCE_GROUP" \
+            --name "$VM_NAME" \
+            --username "$ADMIN_USER" \
+            --ssh-key-value "${SSH_KEY_PATH}.pub" \
+            -o none 2>/dev/null
+        log "SSH key updated. Retrying connection..."
+        sleep 5
+    fi
+
     # Check if relay is already running
-    RELAY_RUNNING=$(ssh -o ConnectTimeout=10 -i "$SSH_KEY_PATH" "$ADMIN_USER@$VM_IP" \
+    RELAY_RUNNING=$(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -i "$SSH_KEY_PATH" "$ADMIN_USER@$VM_IP" \
         "ps aux | grep s2_server.py | grep -v grep" 2>/dev/null || true)
 
     if [ -n "$RELAY_RUNNING" ]; then
