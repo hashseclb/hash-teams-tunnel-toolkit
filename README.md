@@ -160,13 +160,18 @@ The toolkit comes with start and stop scripts for each platform. They handle eve
 ./start.sh
 ```
 
-**Windows (PowerShell):**
+**Windows:**
+
+Double-click `start.bat`. That is it. No PowerShell setup, no execution policy, no admin prompts to deal with manually. It requests admin rights automatically and handles everything.
+
+If you prefer PowerShell directly:
 
 ```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\start.ps1
 ```
 
-That is it. The script does everything automatically:
+The script does everything automatically:
 
 1. Checks that Python, Azure CLI, and uv are installed
 2. Generates an SSH key (if this is the first run)
@@ -212,6 +217,8 @@ Or from another terminal:
 ```
 
 **Windows:**
+
+Double-click `stop.bat`, or from PowerShell:
 
 ```powershell
 .\stop.ps1             # Keep VM for next time
