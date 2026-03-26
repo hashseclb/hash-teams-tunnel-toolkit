@@ -63,14 +63,13 @@ if ($needsRefresh) {
 
 # ---------- Azure CLI ----------
 if (Get-Command az -ErrorAction SilentlyContinue) {
-    $azVer = az version --query '"azure-cli"' -o tsv 2>$null
-    Log "Azure CLI is already installed: $azVer"
+    Log "Azure CLI is already installed"
 } else {
     Log "Installing Azure CLI..."
     winget install Microsoft.AzureCLI --accept-package-agreements --accept-source-agreements
     Refresh-Path
     if (Get-Command az -ErrorAction SilentlyContinue) {
-        Log "Azure CLI installed: $(az version --query '"azure-cli"' -o tsv 2>$null)"
+        Log "Azure CLI installed"
     } else {
         Warn "Azure CLI was installed but 'az' is not in PATH yet."
         Warn "If the next steps fail, close and reopen PowerShell, then run this script again."
