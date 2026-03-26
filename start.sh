@@ -167,7 +167,6 @@ ensure_vm() {
 
         if [ "$VM_STATUS" = "VM running" ]; then
             log "VM is already running ($VM_IP)"
-            return
         else
             log "VM exists but is stopped ($VM_STATUS). Starting..."
             az vm start --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" -o none
@@ -175,8 +174,25 @@ ensure_vm() {
             VM_IP=$(az vm show -g "$RESOURCE_GROUP" -n "$VM_NAME" -d --query publicIps -o tsv)
             echo "$VM_IP" > "$STATE_FILE"
             log "VM started. IP: $VM_IP"
-            return
         fi
+
+        # Ensure the relay port is open (NSG rule may be missing)
+        az network nsg rule show --resource-group "$RESOURCE_GROUP" --nsg-name "$NSG_NAME" \
+            --name AllowTLSRelay -o none 2>/dev/null || {
+            log "Opening port $RELAY_PORT..."
+            az network nsg rule create \
+                --resource-group "$RESOURCE_GROUP" \
+                --nsg-name "$NSG_NAME" \
+                --name AllowTLSRelay \
+                --priority 1010 \
+                --direction Inbound \
+                --access Allow \
+                --protocol Tcp \
+                --destination-port-ranges "$RELAY_PORT" \
+                --source-address-prefixes '*' \
+                -o none 2>/dev/null
+        }
+        return
     fi
 
     # --- VM does not exist, check if the resource group exists ---
