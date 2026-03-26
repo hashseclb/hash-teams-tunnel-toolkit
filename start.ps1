@@ -75,8 +75,15 @@ trap { Cleanup; break }
 function Check-Prereqs {
     $missing = $false
 
-    if (-not (Get-Command python3 -ErrorAction SilentlyContinue) -and
-        -not (Get-Command python -ErrorAction SilentlyContinue)) {
+    $script:PYTHON = $null
+    if (Get-Command python -ErrorAction SilentlyContinue) {
+        $pyVer = python --version 2>&1
+        if ($pyVer -match "3\.\d+") { $script:PYTHON = "python" }
+    }
+    if (-not $PYTHON -and (Get-Command python3 -ErrorAction SilentlyContinue)) {
+        $script:PYTHON = "python3"
+    }
+    if (-not $PYTHON) {
         Err "Python 3 is not installed. Run .\install.ps1 first."
         $missing = $true
     }
@@ -120,7 +127,7 @@ function Ensure-Password {
         return
     }
 
-    $script:RELAY_PASSWORD = python3 -c "import secrets; print(secrets.token_urlsafe(32))"
+    $script:RELAY_PASSWORD = & $PYTHON -c "import secrets; print(secrets.token_urlsafe(32))"
     Set-Content -Path $PASSWORD_FILE -Value $RELAY_PASSWORD
     Log "Generated relay password (saved to $PASSWORD_FILE)"
 }

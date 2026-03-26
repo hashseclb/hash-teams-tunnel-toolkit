@@ -28,15 +28,12 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 }
 
 # ---------- Python ----------
-if (Get-Command python3 -ErrorAction SilentlyContinue) {
-    $pyVer = python3 --version 2>&1
-    Log "Python is already installed: $pyVer"
-} elseif (Get-Command python -ErrorAction SilentlyContinue) {
+if (Get-Command python -ErrorAction SilentlyContinue) {
     $pyVer = python --version 2>&1
     if ($pyVer -match "3\.\d+") {
         Log "Python is already installed: $pyVer"
     } else {
-        Log "Installing Python..."
+        Log "Installing Python 3.13..."
         winget install Python.Python.3.13 --accept-package-agreements --accept-source-agreements
         Log "Python installed. Close and reopen PowerShell, then run this script again."
         exit 0
