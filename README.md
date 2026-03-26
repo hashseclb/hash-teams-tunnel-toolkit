@@ -1,5 +1,11 @@
 # Lebanon's Free Educational Data Package: Is it only for Teams and Madrasti? Let's see.
 
+# Set-up Video:
+
+[Watch the set-up video](https://drive.google.com/file/d/1fz-HAIjUsbpHHpb8pGza4NEv4TWznsV3/view?usp=sharing)
+
+<img width="2754" height="1536" alt="Gemini_Generated_Image_5ep5sn5ep5sn5ep5" src="https://github.com/user-attachments/assets/418c40e7-b5d8-45d4-a9ac-a7bf4ae1bbb5" />
+
 Lebanon's telecom companies, Alfa and Touch, recently launched a free 20GB internet package for remote learning. The initiative came amid the worsening displacement crisis in the country, aiming to ease the educational burden on students and teachers.
 
 Here is how it works: every student gets a separate 20GB data bucket, free of charge, available on weekdays from 7:30 AM to 2:00 PM. This bucket can only be used for educational platforms like Microsoft Teams and Madrasati. The student's regular paid data plan is not touched when using these platforms. Any non-educational traffic still gets charged against the paid plan as usual.
