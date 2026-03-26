@@ -63,8 +63,14 @@ async def run_test(
             logger.info("Shutting down...")
             stop_event.set()
 
-        for sig in (signal.SIGINT, signal.SIGTERM):
-            loop.add_signal_handler(sig, _signal_handler)
+        # Windows doesn't support add_signal_handler
+        import sys
+        if sys.platform != "win32":
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                loop.add_signal_handler(sig, _signal_handler)
+        else:
+            signal.signal(signal.SIGINT, lambda s, f: _signal_handler())
+            signal.signal(signal.SIGTERM, lambda s, f: _signal_handler())
 
         try:
             await proxy_server.start()
