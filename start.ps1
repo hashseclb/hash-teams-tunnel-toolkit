@@ -35,6 +35,14 @@ function Log($msg) { Write-Host "[*] $msg" -ForegroundColor Green }
 function Warn($msg) { Write-Host "[!] $msg" -ForegroundColor Yellow }
 function Err($msg) { Write-Host "[x] $msg" -ForegroundColor Red }
 
+# ---------- Refresh PATH (picks up newly installed tools) ----------
+function Refresh-Path {
+    $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    $env:Path = "$machinePath;$userPath;$env:USERPROFILE\.local\bin"
+}
+Refresh-Path
+
 # ---------- Cleanup on exit ----------
 $tunnelProcess = $null
 
